@@ -9,7 +9,7 @@ app.use(express.json());
 
 //
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.pii6nyx.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -31,6 +31,25 @@ async function run() {
     });
     app.get("/createTask", async (req, res) => {
       const result = await TaskCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/createTask/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await TaskCollection.findOne(query);
+      res.send(result);
+    });
+    app.patch("/createTask/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateStatus = req.body;
+      console.log(updateStatus);
+      const updateDoc = {
+        $set: {
+          status: updateStatus.status,
+        },
+      };
+      const result = await TaskCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
